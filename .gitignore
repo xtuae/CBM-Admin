@@ -374,3 +374,6 @@ secrets/
 # If you did commit a secret, revoke it immediately and rotate to a new one.
 # ===============================================================================================
 .vercel
+
+# Allow admin tsconfig needed for CI
+!apps/admin/tsconfig.json
