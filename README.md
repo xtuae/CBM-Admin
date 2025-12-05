@@ -380,3 +380,9 @@ ls apps/web/package.json
 - ✅ Admin operations use secure RPC functions
 - ✅ Payment webhooks use proper signature validation
 - ✅ Database triggers maintain data integrity
+
+## Update Note
+
+The `/apps/web` frontend has been removed from this repository. The project now focuses on the admin panel (`/apps/admin`) for managing the credits-based marketplace. Deployment is configured for the admin application only.
+
+Updated for latest deployment.
