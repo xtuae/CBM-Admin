@@ -1,0 +1,15 @@
+{
+  "name": "cbm-admin",
+  "buildCommand": "cd apps/admin && npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "apps/admin/dist",
+  "framework": "vite",
+  "env": {
+    "VITE_SUPABASE_URL": "@supabase-url",
+    "VITE_SUPABASE_ANON_KEY": "@supabase-anon-key",
+    "VITE_APP_TITLE": "CBM Admin - Credits Marketplace"
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

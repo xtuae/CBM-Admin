@@ -1,0 +1,375 @@
+# ===============================================================================================
+# GITIGNORE CONFIGURATION - CREDITS MARKETPLACE PLATFORM
+# ===============================================================================================
+# This file ensures no sensitive information or build artifacts are committed to version control.
+# NEVER COMMIT: API keys, passwords, secrets, private keys, or sensitive configuration.
+
+# ===============================================================================================
+# SENSITIVE FILES - NEVER COMMIT THESE!
+# ===============================================================================================
+
+# Environment variables (contain secrets)
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+.env.development
+
+# Template files (clean examples only)
+!.env.example
+!.env.example*
+!apps/backend/.env.example
+!apps/web/.env.example
+!.env.example
+
+# Secret keys and certificates
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+*.jks
+*.srl
+*.csr
+
+# API keys and tokens
+*.token
+*_api_key*
+*_secret*
+
+# Private keys (blockchain, SSH, etc.)
+*private*
+*secret*
+
+# ===============================================================================================
+# DATABASE & DATA FILES
+# ===============================================================================================
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL dumps and backups
+*.sql
+*.dump
+*.backup
+
+# Local database volumes
+data/
+db/
+postgres_data/
+
+# Supabase local data
+supabase/.branches
+supabase/.temp
+
+# ===============================================================================================
+# BUILD ARTIFACTS & DEPENDENCIES
+# ===============================================================================================
+
+# Node.js dependencies
+node_modules/
+yarn.cache/
+.npm/
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+build/
+.next/
+.nuxt/
+.vuepress/dist
+.output/
+.cache/
+.parcel-cache/
+.vite/
+
+# Java/Kotlin/Gradle
+.gradle/
+build/
+out/
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Ruby
+.bundle/
+.byebug_history
+.gem
+*.gem
+
+# Go
+vendor/
+dist/
+
+# ===============================================================================================
+# IDE & EDITOR FILES
+# ===============================================================================================
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Atom
+.atom/
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+.netrwhist
+*~
+tags
+[._]*.un~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Textmate
+*.tmproj
+*.tmproject
+tmtags
+
+# Xcode
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserdatad
+*.moved-aside
+*.xccheckout
+DerivedData/
+
+# ===============================================================================================
+# OS GENERATED FILES
+# ===============================================================================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.nfs*
+
+# ===============================================================================================
+# LOGS & DEBUG FILES
+# ===============================================================================================
+
+# General logs
+*.log
+logs/
+log/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Testing output
+test-results/
+playwright-report/
+playwright/.cache/
+
+# ===============================================================================================
+# TEMPORARY & CACHE FILES
+# ===============================================================================================
+
+# Temporary files
+tmp/
+temp/
+tmp*/
+temp*/
+.cache/
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
+
+# Stylelint cache
+.stylelintcache
+
+# Jest cache
+.jest/
+
+# Cypress cache
+.cypress/
+
+# ===============================================================================================
+# PACKAGE MANAGER FILES
+# ===============================================================================================
+
+# Yarn
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# pnpm
+.pnpm-debug.log*
+
+# npm
+.npm
+.eslintcache
+
+# ===============================================================================================
+# VERSION CONTROL & DEPLOYMENT
+# ===============================================================================================
+
+# Git
+.git/
+.gitignore~
+
+# Mercurial
+.hg/
+.hgignore~
+
+# Bazaar
+.bzr/
+.bzrignore~
+
+# Deployment
+.deploy*/
+
+# Serverless
+.serverless/
+
+# ===============================================================================================
+# SPECIFIC TO THIS PROJECT
+# ===============================================================================================
+
+# Local Supabase development
+supabase/.branches
+supabase/.temp
+supabase/.ref
+
+# Docker volumes (avoid committing local container data)
+docker-volumes/
+volumes/
+
+# Local SSL certificates for development
+certs/
+ssl/
+
+# ===============================================================================================
+# SENSITIVE CONFIGURATION FILES
+# ===============================================================================================
+
+# Any file containing config, secret, key, token, password
+*config*.json
+*secrets*.json
+*keys*.json
+*credentials*.json
+
+# Docker secrets
+secrets/
+.secret/
+
+# ===============================================================================================
+# BACKUP FILES
+# ===============================================================================================
+
+# Editors and tools create backup files
+*~
+*.bak
+*.backup
+*.old
+*.orig
+*.rej
+*.tmp
+
+# ===============================================================================================
+# SECURITY CHECKLIST - BEFORE COMMITTING
+# ===============================================================================================
+# 1. ✓ Run 'git add -p' to review changes before staging
+# 2. ✓ Use 'git add --intent-to-add' for sensitive files you want to track structure-only
+# 3. ✓ Check 'git ls-files' for any accidentally added sensitive files
+# 4. ✓ Never add .env files with real secrets
+# 5. ✓ Review .gitignore regularly and update as needed
+# 6. ✓ Use 'git secret' or similar tools for truly sensitive configuration
+#
+# REMEMBER: It's better to not track sensitive files at all than to accidentally commit them.
+# If you did commit a secret, revoke it immediately and rotate to a new one.
+# ===============================================================================================

@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===============================================================================================
+   DESIGN SYSTEM - CREDITS MARKETPLACE PLATFORM
+   =============================================================================================== */
+
+@layer base {
+  /* System font stack for better performance */
+  html {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  /* Base typography with responsive sizing */
+  body {
+    @apply bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 text-gray-300 leading-relaxed;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Responsive headings */
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl font-semibold text-white leading-snug;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl font-semibold text-white leading-snug;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl font-medium text-white leading-snug;
+  }
+
+  h6 {
+    @apply text-base md:text-lg font-medium text-white leading-snug;
+  }
+
+  /* Body text */
+  p {
+    @apply text-base text-gray-300 leading-relaxed;
+  }
+
+  /* Muted text */
+  .text-muted {
+    @apply text-sm text-gray-400 leading-relaxed;
+  }
+
+  .text-muted-xs {
+    @apply text-xs text-gray-500 leading-relaxed;
+  }
+}
+
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-white hover:bg-primary-600 focus:ring-primary px-4 py-3 text-sm font-semibold shadow-lg hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-800 text-gray-300 border border-gray-600 hover:bg-gray-700 hover:text-white focus:ring-primary px-4 py-3 text-sm font-medium shadow-md hover:shadow-lg;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-gray-300 hover:bg-gray-700 hover:text-white focus:ring-primary px-4 py-3 text-sm;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 px-4 py-3 text-sm font-medium shadow-lg hover:shadow-xl;
+  }
+
+  /* Button sizes */
+  .btn-sm {
+    @apply px-3 py-2 text-xs;
+  }
+
+  .btn-lg {
+    @apply px-6 py-4 text-base;
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full rounded-lg border border-gray-600 bg-gray-800 px-3 py-3 text-sm text-white placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 transition-colors;
+  }
+
+  .input-error {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+  }
+
+  /* Select */
+  .select {
+    @apply input cursor-pointer;
+  }
+
+  /* Cards with glassmorphism */
+  .card {
+    @apply rounded-xl border border-white/10 bg-black/20 backdrop-blur-md p-6 shadow-2xl;
+  }
+
+  .card-header {
+    @apply mb-3;
+  }
+
+  .card-title {
+    @apply text-xl font-semibold text-white;
+  }
+
+  .card-description {
+    @apply text-muted;
+  }
+
+  .card-content {
+    @apply space-y-3;
+  }
+
+  .card-footer {
+    @apply mt-3 flex justify-end space-x-2;
+  }
+
+  /* Form elements */
+  .form-group {
+    @apply space-y-1;
+  }
+
+  .form-label {
+    @apply text-sm font-medium text-gray-200;
+  }
+
+  .form-error {
+    @apply text-xs text-danger;
+  }
+
+  .form-help {
+    @apply text-muted;
+  }
+
+  /* Layout utilities */
+  .container-max {
+    @apply mx-auto max-w-6xl px-4; /* Centered container ~1200-1400px */
+  }
+
+  .page-header {
+    @apply mb-8 space-y-2;
+  }
+
+  .section-spacing {
+    @apply py-16; /* Generous spacing */
+  }
+
+  .content-spacing {
+    @apply space-y-4;
+  }
+
+  /* Status indicators */
+  .status-success {
+    @apply text-green-400;
+  }
+
+  .status-error {
+    @apply text-red-400;
+  }
+
+  .status-warning {
+    @apply text-yellow-400;
+  }
+
+  .status-info {
+    @apply text-blue-400;
+  }
+
+  /* Glass effect utilities */
+  .glass {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  }
+
+  .glass-card {
+    @apply glass rounded-xl shadow-2xl;
+  }
+}
