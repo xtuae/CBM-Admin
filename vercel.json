@@ -1,0 +1,14 @@
+{
+  "installCommand": "npm install && cd apps/admin && npm ci",
+  "buildCommand": "cd apps/admin && npm run build",
+  "outputDirectory": "apps/admin/dist",
+  "framework": "vite",
+  "env": {
+    "VITE_SUPABASE_URL": "https://anehzpnyjrkerrfhvtwt.supabase.co",
+    "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFuZWh6cG55anJrZXJyZmh2dHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ4MTY3OTQsImV4cCI6MjA4MDM5Mjc5NH0.W4K2E2zRx8erN74_i177UDqKEr7JDYSxud3y3hZUL7s",
+    "VITE_APP_TITLE": "CBM Admin - Credits Marketplace"
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
