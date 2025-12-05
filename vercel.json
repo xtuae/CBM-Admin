@@ -1,6 +1,6 @@
 {
-  "installCommand": "npm install && cd apps/admin && npm ci",
-  "buildCommand": "cd apps/admin; npm run build",
+  "installCommand": "bash -c 'npm install && cd apps/admin && npm ci'",
+  "buildCommand": "bash -c 'cd apps/admin && npm run build'",
   "outputDirectory": "apps/admin/dist",
   "framework": "vite",
   "env": {
