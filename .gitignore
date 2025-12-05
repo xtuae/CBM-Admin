@@ -373,3 +373,4 @@ secrets/
 # REMEMBER: It's better to not track sensitive files at all than to accidentally commit them.
 # If you did commit a secret, revoke it immediately and rotate to a new one.
 # ===============================================================================================
+.vercel
