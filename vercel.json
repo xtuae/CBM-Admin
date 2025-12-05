@@ -1,31 +1,15 @@
 {
-  "buildCommand": "cd apps/web && npx vite build",
-  "outputDirectory": "apps/web/dist",
-  "installCommand": "cd apps/web && npm install",
+  "name": "cbm-admin",
+  "buildCommand": "cd apps/admin && npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": "apps/admin/dist",
   "framework": "vite",
+  "env": {
+    "VITE_SUPABASE_URL": "@supabase-url",
+    "VITE_SUPABASE_ANON_KEY": "@supabase-anon-key",
+    "VITE_APP_TITLE": "CBM Admin - Credits Marketplace"
+  },
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
