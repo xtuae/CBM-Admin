@@ -1,16 +1,10 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useNilaRate } from '../lib/fetchNilaRate'
 import Modal from './Modal'
-
-interface CreditPack {
-  id?: string
-  name: string
-  description: string
-  price: number
-  credits: number
-  image_url?: string | null
-  is_active: boolean
-}
+import { CreditPack, CreditPackFormData } from '../types/credit-pack'
+import { uploadCreditPackImage, type UploadResult } from '../lib/uploadImage'
+import { getCreditPackImageUrl } from '../lib/getCreditPackImageUrl'
 
 interface CreditPackModalProps {
   isOpen: boolean
@@ -20,123 +14,202 @@ interface CreditPackModalProps {
 }
 
 const CreditPackModal = ({ isOpen, onClose, onSave, pack }: CreditPackModalProps) => {
-  const [formData, setFormData] = useState<CreditPack>({
-    name: '',
-    description: '',
-    price: 0,
-    credits: 0,
-    image_url: '',
-    is_active: true
-  })
-  const [loading, setLoading] = useState(false)
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string>('')
+  // Form states
+  const [name, setName] = useState<string>('');
+  const [shortDescription, setShortDescription] = useState<string>('');
+  const [usdPrice, setUsdPrice] = useState<number>(0);
+  // Note: Credits represent NIL tokens, so credit_amount = NILA equivalent
+  const [creditAmount, setCreditAmount] = useState<number>(0);
+  const [isActive, setIsActive] = useState<boolean>(true);
+  const [isFeatured, setIsFeatured] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (pack) {
-      setFormData({
-        id: pack.id,
-        name: pack.name,
-        description: pack.description,
-        price: pack.price,
-        credits: pack.credits,
-        image_url: pack.image_url || '',
-        is_active: pack.is_active
-      })
-      setImagePreview(pack.image_url || '')
-    } else {
-      setFormData({
-        name: '',
-        description: '',
-        price: 0,
-        credits: 0,
-        image_url: '',
-        is_active: true
-      })
-      setImagePreview('')
-    }
-    setImageFile(null)
-  }, [pack, isOpen])
+  // NILA states - using hook with auto-update
+  const { rate: nilaRateUsd, loading: nilaRateLoading, error: nilaRateError, refresh: loadNilaRate } = useNilaRate(true);
+  const [nilaEquivalent, setNilaEquivalent] = useState<string>("0.000000");
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
+  // Image states
+  const [featuredImageUrl, setFeaturedImageUrl] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
+
+  // Categories states
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+
+  const loadCategories = async () => {
+    setCategoriesLoading(true);
+    try {
+      const { data: categories, error } = await supabase
+        .from('categories')
+        .select('id, name, slug')
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error('Error loading categories:', error);
+      } else {
+        setCategories(categories || []);
       }
-      reader.readAsDataURL(file)
+    } catch (err) {
+      console.error('Unexpected error loading categories:', err);
+    } finally {
+      setCategoriesLoading(false);
     }
-  }
+  };
 
-  const uploadImage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${Date.now()}.${fileExt}`
-    const filePath = `credit-packs/${fileName}`
-
-    const { error: uploadError } = await supabase.storage
-      .from('images')
-      .upload(filePath, file)
-
-    if (uploadError) {
-      throw uploadError
+  const handleCategoryChange = (categoryId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedCategories(prev => [...prev, categoryId]);
+    } else {
+      setSelectedCategories(prev => prev.filter(id => id !== categoryId));
     }
+  };
 
-    const { data } = supabase.storage
-      .from('images')
-      .getPublicUrl(filePath)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    return data.publicUrl
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    // Validate file size (handled in upload function now, but let's clear any existing errors)
+    setImageError(null);
+    setImageUploading(true);
 
     try {
-      let imageUrl = formData.image_url
+      const result = await uploadCreditPackImage(file);
 
-      // Upload new image if selected
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile)
+      if (result.error) {
+        setImageError(result.error);
+      } else if (result.url) {
+        setImageError(null);
+        setFeaturedImageUrl(result.url);
+        // Clear file input
+        e.target.value = '';
+      } else {
+        setImageError("Upload completed but no URL returned. Please try again.");
       }
+    } catch (err) {
+      console.error('File upload error:', err);
+      setImageError("An unexpected error occurred. Please try again.");
+    } finally {
+      setImageUploading(false);
+    }
+  };
 
-      const packData = {
-        name: formData.name,
-        description: formData.description,
-        price: formData.price,
-        credits: formData.credits,
-        image_url: imageUrl,
-        is_active: formData.is_active
-      }
+  // Load categories on mount
+  useEffect(() => {
+    if (isOpen) {
+      loadCategories();
+    }
+  }, [isOpen]);
+
+  // Initialize form when pack changes
+  useEffect(() => {
+    if (pack) {
+      console.log('Initializing modal with pack:', pack.name, 'featured_image_url:', pack.featured_image_url);
+      console.log('Setting selectedCategories to:', pack.category_ids || []);
+      setName(pack.name);
+      setShortDescription(pack.short_description);
+      setUsdPrice(pack.price_usd);
+      setCreditAmount(pack.credit_amount);
+      setIsActive(pack.is_active);
+      setIsFeatured(pack.is_featured);
+      setFeaturedImageUrl(pack.featured_image_url || null);
+      setNilaEquivalent(pack.nila_equivalent ? pack.nila_equivalent.toString() : "0.000000");
+      setSelectedCategories(pack.category_ids || []);
+    } else {
+      setName('');
+      setShortDescription('');
+      setUsdPrice(0);
+      setCreditAmount(0);
+      setIsActive(true);
+      setIsFeatured(false);
+      setFeaturedImageUrl(null);
+      setNilaEquivalent("0.000000");
+      setSelectedCategories([]);
+    }
+    setImageError(null);
+  }, [pack, isOpen]);
+
+
+
+ useEffect(() => {
+   // Credits = NILA equivalent (since credits represent NIL tokens)
+   if (nilaRateUsd && nilaRateUsd > 0 && usdPrice > 0) {
+     const nilEquivalent = usdPrice / nilaRateUsd;
+     setCreditAmount(Math.round(nilEquivalent)); // Round to whole credits
+     setNilaEquivalent(nilEquivalent.toFixed(6));
+   } else {
+     setCreditAmount(0);
+     setNilaEquivalent("0.000000");
+   }
+ }, [usdPrice, nilaRateUsd]);
+
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Generate slug
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+
+      console.log('Saving credit pack with featured_image_url:', featuredImageUrl);
+
+      const payload = {
+        name,
+        slug,
+        short_description: shortDescription,
+        long_description_html: shortDescription, // or actual rich HTML if present
+        credit_amount: creditAmount,
+        price_usd: usdPrice,
+        price_fiat: usdPrice,       // keep matching USD for now
+        currency: "USD",
+
+        nila_equivalent:
+          nilaRateUsd && nilaRateUsd > 0
+            ? parseFloat((usdPrice / nilaRateUsd).toFixed(6))
+            : null,
+        is_active: isActive,
+        is_featured: isFeatured,
+        featured_image_url: featuredImageUrl,
+        gallery_urls: [], // empty for now
+        category_ids: selectedCategories,
+        seo_title: name, // or actual
+        seo_description: shortDescription,
+        seo_keywords: [] // empty for now
+      };
 
       if (pack?.id) {
-        // Update existing pack
+        // Update
         const { error } = await supabase
           .from('credit_packs')
-          .update(packData)
-          .eq('id', pack.id)
+          .update(payload)
+          .eq('id', pack.id);
 
-        if (error) throw error
+        if (error) throw error;
       } else {
-        // Create new pack
+        // Insert
         const { error } = await supabase
           .from('credit_packs')
-          .insert(packData)
+          .insert([payload]);
 
-        if (error) throw error
+        if (error) throw error;
       }
 
-      onSave()
-      onClose()
+      onSave();
+      onClose();
     } catch (error) {
-      console.error('Error saving credit pack:', error)
-      alert('Error saving credit pack. Please try again.')
+      console.error('Error saving credit pack:', error);
+      alert('Error saving credit pack. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Modal
@@ -156,84 +229,154 @@ const CreditPackModal = ({ isOpen, onClose, onSave, pack }: CreditPackModalProps
             id="name"
             required
             className="input mt-1"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Starter Pack"
           />
         </div>
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="short_description" className="block text-sm font-medium text-gray-700">
             Description *
           </label>
           <textarea
-            id="description"
+            id="short_description"
             required
             rows={3}
             className="input mt-1"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            value={shortDescription}
+            onChange={(e) => setShortDescription(e.target.value)}
             placeholder="Describe the credit pack..."
           />
         </div>
 
-        {/* Price and Credits */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-              Price (USD) *
-            </label>
-            <input
-              type="number"
-              id="price"
-              required
-              min="0"
-              step="0.01"
-              className="input mt-1"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
-              placeholder="29.99"
-            />
-          </div>
+        {/* USD Price */}
+        <div>
+          <label htmlFor="price_usd" className="block text-sm font-medium text-gray-700">
+            USD Price *
+          </label>
+          <input
+            type="number"
+            id="price_usd"
+            required
+            min="0"
+            step="0.01"
+            className="input mt-1"
+            value={usdPrice}
+            onChange={(e) => setUsdPrice(parseFloat(e.target.value) || 0)}
+            placeholder="29.99"
+          />
+        </div>
 
-          <div>
-            <label htmlFor="credits" className="block text-sm font-medium text-gray-700">
-              Credits *
-            </label>
+        {/* Credits (read-only, auto-calculated) */}
+        <div>
+          <label htmlFor="credits" className="block text-sm font-medium text-gray-700">
+            Credits *
+          </label>
+          <input
+            type="number"
+            id="credits"
+            readOnly
+            className="input mt-1 bg-gray-50"
+            value={creditAmount}
+            placeholder="0"
+          />
+        </div>
+
+        {/* Current NILA Rate */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Current NILA Rate (USD)
+          </label>
+          <div className="flex items-center gap-2 mt-1">
             <input
-              type="number"
-              id="credits"
-              required
-              min="1"
-              className="input mt-1"
-              value={formData.credits}
-              onChange={(e) => setFormData({ ...formData, credits: parseInt(e.target.value) || 0 })}
-              placeholder="100"
+              readOnly
+              className="input bg-gray-50"
+              value={nilaRateLoading ? "Loading..." : nilaRateUsd ? nilaRateUsd.toString() : "Failed"}
             />
+            <button
+              type="button"
+              onClick={loadNilaRate}
+              className="btn"
+              disabled={nilaRateLoading}
+            >
+              Refresh $NILA Rate
+            </button>
           </div>
+          {nilaRateError && (
+            <p className="text-red-500 text-sm mt-2">
+              {nilaRateError}
+            </p>
+          )}
+        </div>
+
+        {/* NILA Equivalent */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            NILA Equivalent
+          </label>
+          <input readOnly className="input bg-gray-50 mt-1" value={nilaEquivalent} />
         </div>
 
         {/* Image Upload */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Image
+            Featured Image
           </label>
-          <div className="mt-1 flex items-center space-x-4">
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="h-20 w-20 rounded-lg object-cover border border-gray-200"
-              />
-            )}
+          <div className="mt-2">
             <input
               type="file"
               accept="image/*"
-              onChange={handleImageChange}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              onChange={handleFileUpload}
+              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Upload featured image (JPG, PNG, GIF, WebP - max 5MB)
+            </p>
+            {!featuredImageUrl && (
+              <p className="text-xs text-gray-500 mt-1">
+                No image uploaded yet. Placeholder will be used.
+              </p>
+            )}
+            {imageUploading && (
+              <p className="text-xs text-gray-500 mt-2">Uploading image…</p>
+            )}
+            {imageError && (
+              <p className="text-xs text-red-500 mt-2">{imageError}</p>
+            )}
           </div>
+        </div>
+
+        {/* Categories */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Categories
+          </label>
+          {categoriesLoading ? (
+            <p className="text-sm text-gray-500 mt-1">Loading categories...</p>
+          ) : categories.length === 0 ? (
+            <p className="text-sm text-gray-500 mt-1">No categories available</p>
+          ) : (
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {categories.map((category) => (
+                <label key={category.id} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    checked={selectedCategories.includes(category.id)}
+                    onChange={(e) => handleCategoryChange(category.id, e.target.checked)}
+                  />
+                  <span className="ml-2 block text-sm text-gray-900">
+                    {category.name}
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+          <p className="text-xs text-gray-500 mt-1">
+            Select categories for this credit pack
+          </p>
         </div>
 
         {/* Active Status */}
@@ -242,8 +385,8 @@ const CreditPackModal = ({ isOpen, onClose, onSave, pack }: CreditPackModalProps
             type="checkbox"
             id="is_active"
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            checked={formData.is_active}
-            onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+            checked={isActive}
+            onChange={(e) => setIsActive(e.target.checked)}
           />
           <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
             Active (visible to customers)

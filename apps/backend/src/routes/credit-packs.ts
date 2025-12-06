@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { authenticateAdmin, AuthenticatedRequest } from '../middleware/auth';
-import { supabase } from '../lib/supabase';
+import { authenticateAdmin, AuthenticatedRequest } from '../middleware/auth.js';
+import { supabase } from '../lib/supabase.js';
 import {
   validateUUIDParam,
   validatePositiveAmount,
@@ -8,8 +8,8 @@ import {
   validateText,
   validateSlug,
   validateSlugUniqueness
-} from '../middleware/validation';
-import { logAdminActivity } from '../lib/errorHandler';
+} from '../middleware/validation.js';
+import { logAdminActivity } from '../lib/errorHandler.js';
 
 const router = Router();
 

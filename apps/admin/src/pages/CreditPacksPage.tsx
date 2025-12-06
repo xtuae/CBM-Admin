@@ -1,17 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import CreditPackModal from '../components/CreditPackModal'
-
-interface CreditPack {
-  id: string
-  name: string
-  description: string
-  price: number
-  credits: number
-  image_url: string | null
-  is_active: boolean
-  created_at: string
-}
+import { CreditPack } from '../types/credit-pack'
+import { getCreditPackImageUrl } from '../lib/getCreditPackImageUrl'
 
 const CreditPacksPage = () => {
   const [packs, setPacks] = useState<CreditPack[]>([])
@@ -28,10 +19,11 @@ const CreditPacksPage = () => {
       console.log('Fetching credit packs...')
       const { data, error } = await supabase
         .from('credit_packs')
-        .select('*')
+        .select('id, name, slug, short_description, credit_amount, price_usd, price_fiat, currency, rate_per_credit, is_active, is_featured, featured_image_url, nila_equivalent, category_ids, created_at')
         .order('created_at', { ascending: false })
 
       console.log('Supabase response:', { data, error })
+      console.log('First pack data:', data?.[0])
 
       if (error) throw error
       setPacks(data || [])
@@ -68,7 +60,7 @@ const CreditPacksPage = () => {
   }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
+    if (!window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
       return
     }
 
@@ -143,26 +135,30 @@ const CreditPacksPage = () => {
               <tr key={pack.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    {pack.image_url && (
-                      <img
-                        className="h-10 w-10 rounded-lg mr-3 object-cover"
-                        src={pack.image_url}
-                        alt={pack.name}
-                      />
-                    )}
+                    <img
+                      src={getCreditPackImageUrl(pack.featured_image_url)}
+                      alt={pack.name}
+                      className="h-10 w-10 rounded-lg mr-3 object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (target.src !== window.location.origin + "/images/default-pack.png") {
+                          target.src = "/images/default-pack.png";
+                        }
+                      }}
+                    />
                     <div>
                       <div className="text-sm font-medium text-gray-900">{pack.name}</div>
                       <div className="text-sm text-gray-500 truncate max-w-xs">
-                        {pack.description}
+                        {pack.short_description}
                       </div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  ${pack.price}
+                  ${pack.price_usd}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {pack.credits}
+                  {pack.credit_amount}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -175,7 +171,7 @@ const CreditPacksPage = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                   <button
-                    onClick={() => togglePackStatus(pack.id, pack.is_active)}
+                    onClick={() => togglePackStatus(pack.id!, pack.is_active)}
                     className={`px-3 py-1 rounded text-xs font-medium ${
                       pack.is_active
                         ? 'bg-red-100 text-red-800 hover:bg-red-200'
@@ -191,7 +187,7 @@ const CreditPacksPage = () => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(pack.id, pack.name)}
+                    onClick={() => handleDelete(pack.id!, pack.name)}
                     className="px-3 py-1 rounded text-xs font-medium bg-red-100 text-red-800 hover:bg-red-200"
                   >
                     Delete

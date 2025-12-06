@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { authenticateAdmin, AuthenticatedRequest } from '../middleware/auth';
-import { supabase } from '../lib/supabase';
+import { authenticateAdmin, AuthenticatedRequest } from '../middleware/auth.js';
+import { supabase } from '../lib/supabase.js';
 import {
   validateUUIDParam,
   validatePositiveAmount,
@@ -8,7 +8,7 @@ import {
   validateWalletAddress,
   validateSettlementTransition,
   validateNoNegativeBalance
-} from '../middleware/validation';
+} from '../middleware/validation.js';
 import {
   ValidationError,
   NotFoundError,
@@ -18,7 +18,7 @@ import {
   logSettlementActivity,
   logPaymentActivity,
   logAdminActivity
-} from '../lib/errorHandler';
+} from '../lib/errorHandler.js';
 
 const router = Router();
 

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { supabase } from '../lib/supabase';
-import { sendOrderConfirmationEmail, sendTestEmail, checkEmailService } from '../lib/email';
+import { supabase } from '../lib/supabase.js';
+import { sendOrderConfirmationEmail, sendTestEmail, checkEmailService } from '../lib/email.js';
 
 const router = Router();
 

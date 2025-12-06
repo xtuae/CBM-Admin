@@ -23,7 +23,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { path: '/admin/orders', label: 'Orders', icon: '📦' },
     { path: '/admin/pages', label: 'Pages', icon: '📄' },
     { path: '/admin/activity', label: 'Activity Log', icon: '📝' },
-    { path: '/admin/settlements', label: 'Settlements', icon: '💸' },
+
+    // Finance section
+    { path: '/admin/settlements', label: 'Settlement Management', icon: '💸' },
+
+    // Settings section
+    { path: '/admin/payments', label: 'Payment Management', icon: '💳' },
   ]
 
   const isActive = (path: string) => location.pathname === path

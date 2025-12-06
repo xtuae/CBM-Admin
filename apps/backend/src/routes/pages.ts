@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { authenticateAdmin } from '../middleware/auth';
-import { supabase } from '../lib/supabase';
-import { validateUUIDParam } from '../middleware/validation';
+import { authenticateAdmin } from '../middleware/auth.js';
+import { supabase } from '../lib/supabase.js';
+import { validateUUIDParam } from '../middleware/validation.js';
 
 const router = Router();
 

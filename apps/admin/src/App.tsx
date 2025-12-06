@@ -10,6 +10,8 @@ import OrdersPage from './pages/OrdersPage'
 import ActivityLogPage from './pages/ActivityLogPage'
 import SettlementsPage from './pages/SettlementsPage'
 import PagesPage from './pages/PagesPage'
+import PaymentManagementPage from './pages/PaymentManagementPage'
+import SettlementManagementPage from './pages/SettlementManagementPage'
 import AuthDebug from './pages/_debug/AuthDebug'
 import './App.css'
 
@@ -63,17 +65,28 @@ function App() {
             </AdminLayout>
           </RequireAdmin>
         } />
-        <Route path="/admin/settlements" element={
-          <RequireAdmin>
-            <AdminLayout>
-              <SettlementsPage />
-            </AdminLayout>
-          </RequireAdmin>
-        } />
         <Route path="/admin/pages" element={
           <RequireAdmin>
             <AdminLayout>
               <PagesPage />
+            </AdminLayout>
+          </RequireAdmin>
+        } />
+
+        {/* Finance routes */}
+        <Route path="/admin/settlements" element={
+          <RequireAdmin>
+            <AdminLayout>
+              <SettlementManagementPage />
+            </AdminLayout>
+          </RequireAdmin>
+        } />
+
+        {/* Settings routes */}
+        <Route path="/admin/payments" element={
+          <RequireAdmin>
+            <AdminLayout>
+              <PaymentManagementPage />
             </AdminLayout>
           </RequireAdmin>
         } />
